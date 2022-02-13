@@ -1,0 +1,13 @@
+name: RankUI
+version: '${project.version}'
+main: com.mcpkdot.rankui.RankUI
+authors: [ mcpkdot ]
+description: rank UI
+depend: [Essentials]
+commands:
+  rankshop:
+    description: open the shop menu!
+    usage: /<command>
+  rank:
+    description: rank menu!
+    usage: /<command>
