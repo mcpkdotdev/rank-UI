@@ -11,7 +11,7 @@ public class Rank implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        sender.sendMessage("Dieses Plugin wurde von AffenMennsch gemacht");
+        sender.sendMessage("Support : https://discord.gg/6kSNA9sD69");
         return true;
     }
 }

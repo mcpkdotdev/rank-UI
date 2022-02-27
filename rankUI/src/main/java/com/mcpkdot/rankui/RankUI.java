@@ -22,6 +22,9 @@ public class RankUI extends JavaPlugin implements Listener {
     private static final ItemStack[] icons = new ItemStack[54];
     Boolean essentials;
     Double premiumPrice, ultraPrice, bananePrice, championPrice, ultimatePrice, masterPrice;
+    String premiumName, ultraName, bananeName, championName, ultimateName, masterName;
+    Boolean english;
+    String premiumColor, ultraColor, bananeColor, championColor, ultimateColor, masterColor;
     private static final Logger log = Logger.getLogger("Minecraft");
     private static Economy econ = null;
 
@@ -43,10 +46,26 @@ public class RankUI extends JavaPlugin implements Listener {
         config.addDefault("ultimate", (double)10);
         config.addDefault("master", (double)10);
 
+        config.addDefault("r1", "premium");
+        config.addDefault("r2", "ultra");
+        config.addDefault("r3", "banane");
+        config.addDefault("r4", "champion");
+        config.addDefault("r5", "ultimate");
+        config.addDefault("r6", "master");
 
+        config.addDefault("english", true);
+
+        config.addDefault("premiumColor", "§6");
+        config.addDefault("ultraColor", "§9");
+        config.addDefault("bananeColor", "§e");
+        config.addDefault("championColor", "§d");
+        config.addDefault("ultimateColor", "§b");
+        config.addDefault("masterColor", "§4");
 
         config.options().copyDefaults(true);
         saveConfig();
+
+
 
 
         premiumPrice = config.getDouble("premium");
@@ -56,15 +75,30 @@ public class RankUI extends JavaPlugin implements Listener {
         ultimatePrice = config.getDouble("ultimate");
         masterPrice = config.getDouble("master");
 
+        premiumName = config.getString("r1");
+        ultraName = config.getString("r2");
+        bananeName = config.getString("r3");
+        championName = config.getString("r4");
+        ultimateName = config.getString("r5");
+        masterName = config.getString("r6");
+
+        english = config.getBoolean("english");
+
+        premiumColor = config.getString("premiumColor");
+        ultraColor = config.getString("ultraColor");
+        bananeColor = config.getString("bananeColor");
+        championColor = config.getString("championColor");
+        ultimateColor = config.getString("ultimateColor");
+        masterColor = config.getString("masterColor");
 
         ItemStack nothingDark = createItem("", Material.STAINED_GLASS_PANE, 8, "");
         ItemStack nothingLight = createItem("", Material.STAINED_GLASS_PANE, 7, "");
-        ItemStack premium = createItem("Premium rank", Material.IRON_BLOCK, 5, "Price: " + premiumPrice);
-        ItemStack ultra = createItem("Ultra rank", Material.GOLD_BLOCK, 5, "Price: " + ultraPrice);
-        ItemStack banane = createItem("Banane rank", Material.REDSTONE_BLOCK, 5, "Price: " + bananePrice);
-        ItemStack champion = createItem("Champion rank", Material.LAPIS_BLOCK, 5, "Price: " + championPrice);
-        ItemStack ultimate = createItem("Ultimate rank", Material.DIAMOND_BLOCK, 5, "Price: " + ultimatePrice);
-        ItemStack master = createItem("Master rank", Material.EMERALD_BLOCK, 5, "Price: " + masterPrice);
+        ItemStack premium = createItem(premiumColor + premiumName + " rank", Material.IRON_BLOCK, 5, "Price: " + premiumPrice);
+        ItemStack ultra = createItem(ultraColor + ultraName + " rank", Material.GOLD_BLOCK, 5, "Price: " + ultraPrice);
+        ItemStack banane = createItem(bananeColor + bananeName + " rank", Material.REDSTONE_BLOCK, 5, "Price: " + bananePrice);
+        ItemStack champion = createItem(championColor + championName + " rank", Material.LAPIS_BLOCK, 5, "Price: " + championPrice);
+        ItemStack ultimate = createItem(ultimateColor + ultimateName + " rank", Material.DIAMOND_BLOCK, 5, "Price: " + ultimatePrice);
+        ItemStack master = createItem(masterColor + masterName + " rank", Material.EMERALD_BLOCK, 5, "Price: " + masterPrice);
 
         {
         for (int i = 0; i < icons.length; i++) {
@@ -98,8 +132,11 @@ public class RankUI extends JavaPlugin implements Listener {
     @EventHandler
     public void onInventoryModify(InventoryClickEvent e){
         if(e.getClickedInventory().getTitle().equals("Rank shop")){
+            (e.getWhoClicked()).closeInventory();
             e.setCancelled(true);
             onClick((Player) e.getWhoClicked(), e.getSlot());
+            e.getInventory().remove(createItem("", Material.STAINED_GLASS_PANE, 8, ""));
+            e.getInventory().remove(createItem("", Material.STAINED_GLASS_PANE, 7, ""));
         }
     }
 
@@ -126,62 +163,86 @@ public class RankUI extends JavaPlugin implements Listener {
         switch (slot) {
             case 4:
                 if (getEconomy().getBalance(p) >= premiumPrice) {
-                    getEconomy().withdrawPlayer(p, premiumPrice);
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set premium");
-                    p.closeInventory();
-                    p.sendMessage("§7Du hast den §6premium §7Rang gekauft!");
+                    if(p.hasPermission("group." + premiumName) || p.hasPermission("group." + ultraName) || p.hasPermission("group." + bananeName) || p.hasPermission("group." + championName) || p.hasPermission("group." + ultimateName) || p.hasPermission("group." + championName)){
+                        getEconomy().withdrawPlayer(p, premiumPrice);
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set " + premiumName);
+                        p.closeInventory();
+                        p.sendMessage("§7You bought " + premiumColor + premiumName + " §7rank!");
+                    } else{
+                        p.sendMessage("§7You already have higher rank!");
+                    }
                 } else {
-                    p.sendMessage("§7Du hast nicht genug Geld.");
+                    p.sendMessage("§7You do not have enough money.");
                 }
                 break;
             case 13:
                 if (getEconomy().getBalance(p) >= ultraPrice) {
-                    getEconomy().withdrawPlayer(p, ultraPrice);
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set ultra");
-                    p.closeInventory();
-                    p.sendMessage("§7Du hast den §9ultra §7Rang gekauft!");
+                    if(p.hasPermission("group." + ultraName) || p.hasPermission("group." + bananeName) || p.hasPermission("group." + championName) || p.hasPermission("group." + ultimateName) || p.hasPermission("group." + championName)) {
+                        getEconomy().withdrawPlayer(p, ultraPrice);
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set " + ultraName);
+                        p.closeInventory();
+                        p.sendMessage("§7You bought " + ultraColor + ultraName + " §7rank!");
+                    } else{
+                        p.sendMessage("§7You already have higher rank!");
+                    }
                 } else {
-                    p.sendMessage("§7Du hast nicht genug Geld.");
+                    p.sendMessage("§7You do not have enough money.");
                 }
                 break;
             case 22:
                 if (getEconomy().getBalance(p) >= bananePrice) {
-                    getEconomy().withdrawPlayer(p, bananePrice);
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set banane");
-                    p.closeInventory();
-                    p.sendMessage("§7Du hast den §ebanane §7Rang gekauft!");
+                    if(p.hasPermission("group." + bananeName) || p.hasPermission("group." + championName) || p.hasPermission("group." + ultimateName) || p.hasPermission("group." + championName)) {
+                        getEconomy().withdrawPlayer(p, bananePrice);
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set " + bananeName);
+                        p.closeInventory();
+                        p.sendMessage("§7You bought " + bananeColor + bananeName + " §7rank!");
+                    } else{
+                        p.sendMessage("§7You already have higher rank!");
+                    }
                 } else{
-                    p.sendMessage("§7Du hast nicht genug Geld.");
+                    p.sendMessage("§7You do not have enough money.");
                 }
                 break;
             case 31:
                 if (getEconomy().getBalance(p) >= championPrice) {
-                    getEconomy().withdrawPlayer(p, championPrice);
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set champion");
-                    p.closeInventory();
-                    p.sendMessage("§7Du hast den §dchampion §7Rang gekauft!");
+                    if(p.hasPermission("group." + championName) || p.hasPermission("group." + ultimateName) || p.hasPermission("group." + championName)) {
+                        getEconomy().withdrawPlayer(p, championPrice);
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set " + championName);
+                        p.closeInventory();
+                        p.sendMessage("§7You bought " + championColor + championName + " §7rank!");
+                    } else{
+                        p.sendMessage("§7You already have higher rank!");
+                    }
                 } else{
-                    p.sendMessage("§7Du hast nicht genug Geld.");
+                    p.sendMessage("§7You do not have enough money.");
                 }
                 break;
             case 40:
                 if (getEconomy().getBalance(p) >= ultimatePrice) {
-                    getEconomy().withdrawPlayer(p, ultimatePrice);
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set ultimate");
-                    p.closeInventory();
-                    p.sendMessage("§7Du hast den §bultimate §7Rang gekauft!");
+                    if(p.hasPermission("group." + ultimateName) || p.hasPermission("group." + championName)) {
+                        getEconomy().withdrawPlayer(p, ultimatePrice);
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set " + ultimateName);
+                        p.closeInventory();
+                        p.sendMessage("§7You bought " + ultimateColor + ultimateName + " §7rank!");
+                    } else{
+                        p.sendMessage("§7You already have higher rank!");
+                    }
                 } else{
-                    p.sendMessage("§7Du hast nicht genug Geld.");
+                    p.sendMessage("§7You do not have enough money.");
                 }
                 break;
             case 49:
                 if (getEconomy().getBalance(p) >= masterPrice) {
-                    getEconomy().withdrawPlayer(p, masterPrice);
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set master");
-                    p.closeInventory();
-                    p.sendMessage("§7Du hast den §4master §7Rang gekauft!");
+                    if(p.hasPermission("group." + championName)) {
+                        getEconomy().withdrawPlayer(p, masterPrice);
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent set " + masterName);
+                        p.closeInventory();
+                        p.sendMessage("§7You bought " + masterColor + masterName + " §7rank!");
+                    } else{
+                        p.sendMessage("§7You already have higher rank!");
+                    }
                 } else {
-                    p.sendMessage("§7Du hast nicht genug Geld.");
+                    p.sendMessage("§7You do not have enough money.");
                 }
         }
     }
